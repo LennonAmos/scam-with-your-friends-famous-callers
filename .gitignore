@@ -7,6 +7,10 @@
 !/LICENSE
 !/Build.ps1
 !/Setup.cs
+!/SpeechInstall.cs
+!/SpeechPatch.cs
+!/RickBurps.cs
+!/Mono.Cecil-LICENSE.txt
 !/setup.manifest
 !/callers.json
 !/tools/RenderPortraits.cs

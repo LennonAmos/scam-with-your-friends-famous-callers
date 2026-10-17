@@ -6,4 +6,10 @@ Each voice is an original description-designed synthetic reference sample, gener
 
 Voice generation is a development task requiring the Qwen model and Python dependencies. Players receive finished WAV samples and use the speech engine already included with the game. No voice-design model weights or Python runtime are bundled.
 
-Rick’s short burp is procedurally synthesized by the companion Ollama mod, using a hidden native pause marker every third eligible utterance. It is mixed only into silence, with no spoken stage direction. Install Ollama mod v1.0.4+ separately to enable the effect. The caller pack remains usable without that companion; its burp playback effect requires the companion.
+Rick’s short burp is procedurally synthesized by this pack's own `FamousCallers.dll`, using a hidden native pause marker every third eligible utterance. It is mixed only into silence, with no spoken stage direction. It requires no other mod, actor recording or external audio sample.
+
+Setup uses the MIT-licensed Mono.Cecil 0.11.6 libraries inside its own process to patch two speech methods. The libraries are checksum-verified during builds; their notice is in `Mono.Cecil-LICENSE.txt` and embedded in setup (run `setup.exe --licenses` to read it). No game DLLs are redistributed. The installer backs up the exact previous speech assembly, verifies ownership before changes and restores that backup on removal. Unknown game builds and later modifications are refused.
+
+The optional Ollama mod is independent. Existing v1.0.3/v1.0.4 installations are supported, including migration of the older Rick hooks to avoid duplicate effects. Their files and installation record are preserved. Older Ollama installers require Famous Callers to be removed first when updating or removing Ollama; reinstall Famous Callers afterward. This ordering prevents either installer from overwriting the other's assembly changes.
+
+To build from source, pass `-ManagedDirectory <game Managed folder>` to `Build.ps1`. Generation tools and game files stay outside the published source and releases.

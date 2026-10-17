@@ -14,13 +14,13 @@ using Microsoft.Win32;
 
 [assembly: AssemblyTitle("Scam With Your Friends - Famous Callers Setup")]
 [assembly: AssemblyProduct("Famous Callers")]
-[assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.1.0.0")]
+[assembly: AssemblyVersion("1.1.1.0")]
+[assembly: AssemblyFileVersion("1.1.1.0")]
 [assembly: System.Runtime.Versioning.TargetFramework(".NETFramework,Version=v4.7.2")]
 
-internal static class Setup
+internal static partial class Setup
 {
-    const string Version = "1.1.0";
+    const string Version = "1.1.1";
     const string GameExe = "Scam With Your Friends.exe";
     const string DataRelative = "Scam With Your Friends_Data";
     const string CatalogRelative = "kolkata-json/caller-identities/famous-callers-pack.json";
@@ -29,6 +29,13 @@ internal static class Setup
     static string game, data;
 
     static int Main(string[] args)
+    {
+        AppDomain.CurrentDomain.AssemblyResolve += ResolveTool;
+        return Run(args);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+    static int Run(string[] args)
     {
         Console.OutputEncoding = new UTF8Encoding(false);
         noPause = args.Contains("--no-pause") || Console.IsInputRedirected;
@@ -43,7 +50,8 @@ internal static class Setup
                 case "--uninstall":uninstall=true;break;
                 case "--no-queue":queue=false;break;
                 case "--no-pause":break;
-                case "--help":Console.WriteLine("setup.exe [--game-path <game folder>] [--check | --uninstall] [--no-queue] [--no-pause]\n--data-path <Unity save folder> overrides the default save location.");Pause();return 0;
+                case "--licenses":using(var notice=Assembly.GetExecutingAssembly().GetManifestResourceStream("FamousCallers.Mono.Cecil.License"))using(var reader=new StreamReader(notice))Console.WriteLine(reader.ReadToEnd());Pause();return 0;
+                case "--help":Console.WriteLine("setup.exe [--game-path <game folder>] [--check | --uninstall] [--no-queue] [--no-pause]\n--data-path <Unity save folder> overrides the default save location.\n--licenses shows bundled third-party license notices.");Pause();return 0;
                 default:throw new ArgumentException("Unknown option: "+args[i]);
             }
             if(check&&uninstall)throw new ArgumentException("Choose --check or --uninstall.");
@@ -61,9 +69,10 @@ internal static class Setup
             var record=ReadMap(Path.Combine(ModRoot,"install.json"));
             var recorded=record!=null&&record.ContainsKey("files")?record["files"] as Dictionary<string,object>:null;
             ValidateOwned(files,recorded,uninstall);
+            var speechFiles=PrepareSpeech(payload,uninstall);
             if(check)
             {
-                Console.WriteLine("      Pack and voice references verified. No files were changed.");
+                Console.WriteLine("      Pack, voice references and standalone speech patch verified. No files were changed.");
                 Console.WriteLine(GameRunning()?"      Close the game before installing.":"      Game is closed.");
                 Instructions();Pause();return 0;
             }
@@ -79,6 +88,9 @@ internal static class Setup
             var createdDirectories=new List<string>();
             try
             {
+                foreach(var file in speechFiles)Change(file.Key,file.Value,prior,createdDirectories);
+                foreach(var file in speechFiles)
+                    if(file.Value==null?File.Exists(file.Key):!File.Exists(file.Key)||Hash(File.ReadAllBytes(file.Key))!=Hash(file.Value))throw new IOException("Speech installation verification failed.");
                 foreach(var file in files)
                 {
                     string target=Within(Streaming,file.Key);
@@ -159,7 +171,7 @@ internal static class Setup
         byte[] bytes;if(!payload.TryGetValue("callers.json",out bytes))throw new InvalidDataException("Caller catalog missing.");
         var callers=Sequence(Json.DeserializeObject(Encoding.UTF8.GetString(bytes))).Select(v=>v as Dictionary<string,object>).ToList();
         if(callers.Count!=20||callers.Any(c=>c==null))throw new InvalidDataException("The pack must contain exactly 20 callers.");
-        var expected=new HashSet<string>(StringComparer.Ordinal){"callers.json"};var ids=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var expected=new HashSet<string>(StringComparer.Ordinal){"callers.json","runtime/FamousCallers.dll"};var ids=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach(var caller in callers)
         {
             string id=Text(caller,"id"),portrait=Text(caller,"webcamImage"),voice=Text(caller,"voiceId");
@@ -246,6 +258,6 @@ internal static class Setup
     }
     static void Instructions()
     {
-        Console.WriteLine("\nHOW TO PLAY\n1. Reopen the game and host a lobby.\n2. These callers are part of the normal caller pool and the daily lineup.\n3. Install the same pack version on every player's PC for multiplayer.\n4. Keep using your usual AI provider, including the separate Ollama mod.\n\nPortraits and personalities are fan-made. Speech uses distinct synthetic character-style voices, not official performances.\nNo voice-design models or development tools are required by players.\nFor occasional Rick burps, install Ollama mod v1.0.4 or newer separately.\n\nRemove the pack later: setup.exe --uninstall\nA game update may remove the pack; rerun setup if needed.");
+        Console.WriteLine("\nHOW TO PLAY\n1. Reopen the game and host a lobby.\n2. These callers are part of the normal caller pool and the daily lineup.\n3. Install the same pack version on every player's PC for multiplayer.\n4. Keep using your usual AI and speech providers.\n\nFamous Callers works on its own. Rick's occasional burps are included.\nPortraits and personalities are fan-made. Voices are synthetic character-style approximations, not official performances.\nThe WAV samples guide the game's speech engine as it generates new replies.\nNo Ollama mod, voice-design model, Python or training is required for this pack.\n\nRemove the pack later: setup.exe --uninstall\nAfter a game update, use a compatible pack installer.\nIf using an older Ollama installer: remove Famous Callers before changing Ollama, then reinstall Famous Callers.");
     }
 }
