@@ -1,6 +1,6 @@
 # Scam With Your Friends — Famous Callers
 
-Adds 20 fan-made callers with personalities, game-style portraits, distinct synthetic voices and occasional Rick burps. **A standalone mod: the Ollama mod is not required.** Supports game **0.1.74-swyf**. Voices are character-style approximations, not official performances.
+Adds 20 fan-made callers with personalities, game-style portraits, distinct synthetic voices and occasional Rick burps. Callers follow your conversation rather than a fixed service complaint. **A standalone mod: the Ollama mod is not required.** Supports game **0.1.74-swyf**. Voices are character-style approximations, not official performances.
 
 ## Setup
 

@@ -6,7 +6,7 @@ param(
     [switch]$CheckOnly
 )
 $ErrorActionPreference = 'Stop'
-$version = '1.1.1'
+$version = '1.1.2'
 if (!$OutputDirectory) { $OutputDirectory = Join-Path $PSScriptRoot 'dist' }
 $portraitIds = @(
     'homer_simpson','marge_simpson','montgomery_burns','peter_griffin','stan_smith',

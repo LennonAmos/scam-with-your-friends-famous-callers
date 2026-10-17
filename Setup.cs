@@ -14,13 +14,13 @@ using Microsoft.Win32;
 
 [assembly: AssemblyTitle("Scam With Your Friends - Famous Callers Setup")]
 [assembly: AssemblyProduct("Famous Callers")]
-[assembly: AssemblyVersion("1.1.1.0")]
-[assembly: AssemblyFileVersion("1.1.1.0")]
+[assembly: AssemblyVersion("1.1.2.0")]
+[assembly: AssemblyFileVersion("1.1.2.0")]
 [assembly: System.Runtime.Versioning.TargetFramework(".NETFramework,Version=v4.7.2")]
 
 internal static partial class Setup
 {
-    const string Version = "1.1.1";
+    const string Version = "1.1.2";
     const string GameExe = "Scam With Your Friends.exe";
     const string DataRelative = "Scam With Your Friends_Data";
     const string CatalogRelative = "kolkata-json/caller-identities/famous-callers-pack.json";
