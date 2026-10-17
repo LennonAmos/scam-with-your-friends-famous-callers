@@ -5,7 +5,7 @@ param(
     [switch]$CheckOnly
 )
 $ErrorActionPreference = 'Stop'
-$version = '1.0.0'
+$version = '1.1.0'
 if (!$OutputDirectory) { $OutputDirectory = Join-Path $PSScriptRoot 'dist' }
 $portraitIds = @(
     'homer_simpson','marge_simpson','montgomery_burns','peter_griffin','stan_smith',
@@ -13,13 +13,14 @@ $portraitIds = @(
     'patrick_star','squidward_tentacles','mr_krabs','shrek','donkey','walter_white',
     'saul_goodman','michael_scott','dwight_schrute'
 )
-$sources = @('.gitignore','AGENTS.md','README.md','LICENSE','Build.ps1','Setup.cs','setup.manifest','callers.json','tools/RenderPortraits.cs')
+$sources = @('.gitignore','AGENTS.md','README.md','LICENSE','ASSETS.md','Build.ps1','Setup.cs','setup.manifest','callers.json','voice-design.json','tools/RenderPortraits.cs','tools/GenerateVoices.py')
 $sources += @($portraitIds | ForEach-Object { "portraits/$_.png" })
+$sources += @($portraitIds | ForEach-Object { "voices/$_.wav" })
 function Check-PublishFiles {
     foreach ($relative in $sources) {
         $path = Join-Path $PSScriptRoot $relative
         if (!(Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing public file: $relative" }
-        if ([IO.Path]::GetExtension($path) -in @('.cs','.ps1','.md','.json','.manifest')) {
+        if ([IO.Path]::GetExtension($path) -in @('.cs','.ps1','.py','.md','.json','.manifest')) {
             $contents = [IO.File]::ReadAllText($path)
             if ($contents -match '(?i)(?<![a-z0-9])[a-z]:[\\/]') { throw "Absolute machine path in public source: $relative" }
             if ($contents -match '(?i)(?:ghp_|gho_|github_pat_)[a-z0-9_]{20,}') { throw "Possible credential in public source: $relative" }
@@ -29,7 +30,7 @@ function Check-PublishFiles {
     if ($callers.Count -ne 20 -or @($callers.id | Select-Object -Unique).Count -ne 20) { throw 'The catalog needs 20 unique callers.' }
     foreach ($caller in $callers) {
         $slug = $caller.id -replace '^famous_callers_', ''
-        if ($slug -notin $portraitIds -or $caller.webcamImage -ne "FamousCallers/$slug.png" -or $caller.firstMessages.Count -ne 3) { throw 'Invalid caller catalog entry.' }
+        if ($slug -notin $portraitIds -or $caller.webcamImage -ne "FamousCallers/$slug.png" -or $caller.voiceId -ne "Callers/FamousCallers/Voices/$slug.wav" -or $caller.firstMessages.Count -ne 3) { throw 'Invalid caller catalog entry.' }
     }
     if (Test-Path -LiteralPath (Join-Path $PSScriptRoot '.git')) {
         $tracked = @(git -C $PSScriptRoot ls-files)
@@ -64,14 +65,15 @@ function Write-Zip([string]$Destination, [string[]]$Paths) {
     try {
         foreach ($relative in $Paths) {
             $entry = $zip.CreateEntry($relative, [IO.Compression.CompressionLevel]::Optimal)
-            $input = [IO.File]::OpenRead((Join-Path $PSScriptRoot $relative))
+            $inputPath = Join-Path $PSScriptRoot $relative
+            $input = [IO.File]::OpenRead($inputPath)
             $output = $entry.Open()
             try { $input.CopyTo($output) } finally { $output.Dispose(); $input.Dispose() }
         }
     } finally { $zip.Dispose(); $stream.Dispose() }
 }
 $payload = Join-Path $ToolsDirectory 'Payload.zip'
-Write-Zip $payload (@('callers.json') + @($portraitIds | ForEach-Object { "portraits/$_.png" }))
+Write-Zip $payload (@('callers.json') + @($portraitIds | ForEach-Object { "portraits/$_.png"; "voices/$_.wav" }))
 $setup = Join-Path $OutputDirectory 'setup.exe'
 & $Compiler /nologo /target:exe /platform:x64 /optimize+ /debug- /deterministic+ "/pathmap:$PSScriptRoot=/_/FamousCallers" "/out:$setup" "/win32manifest:$(Join-Path $PSScriptRoot 'setup.manifest')" /reference:System.Web.Extensions.dll /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll "/resource:$payload,FamousCallers.Payload" (Join-Path $PSScriptRoot 'Setup.cs')
 if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed.' }

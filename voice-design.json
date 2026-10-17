@@ -1,0 +1,126 @@
+{
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign",
+  "method": "Description-based synthetic voice design; no actor recordings or cloned actor voices.",
+  "voices": [
+    {
+      "id": "homer_simpson",
+      "seed": 8400,
+      "description": "Adult American male, medium-low pitch, rounded nasal placement, broad slightly dopey vowels, soft husky edge, relaxed rising-and-falling comic rhythm, friendly but easily confused. Not a polished announcer.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "marge_simpson",
+      "seed": 8401,
+      "description": "Mature American woman, low alto pitch with pronounced dry gravelly vocal fry and a gently pinched nasal resonance. Patient, concerned, practical delivery, slow to medium pace; warm restrained emotion, never airy or youthful.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "montgomery_burns",
+      "seed": 8402,
+      "description": "Frail elderly male with a thin reedy high-mid pitch, brittle slightly nasal old-fashioned refined transatlantic diction, clipped precise consonants, imperious sly delivery, weak breath support and a subtle creaking rasp.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "peter_griffin",
+      "seed": 8403,
+      "description": "Heavyset middle-aged American male, low-mid chesty nasal tone with a coarse throaty edge and broad northeastern New England vowels, slightly slurred playful consonants, casual blustering confidence and uneven comic rhythm.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "stan_smith",
+      "seed": 8404,
+      "description": "Adult American male with a strong low baritone, forceful chest resonance, square authoritative delivery, crisp hard consonants, short clipped phrases and a self-important suburban military cadence.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "roger",
+      "seed": 8405,
+      "description": "Androgynous adult male character voice with a raised nasal mid register, dry scratchy texture, theatrical elongated vowels, sardonic worldly attitude and sharp little changes in pitch. Effete, cutting and conversational.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "philip_j_fry",
+      "seed": 8406,
+      "description": "Young adult American male, mid-pitched slightly nasal and thin-edged voice, casual earnest delivery with occasional upward inflection, imperfectly confident, mildly gravelly consonants and youthful laid-back energy.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "turanga_leela",
+      "seed": 8407,
+      "description": "Adult American woman with a grounded low contralto, clear direct nasal placement and a husky edge, slightly flat dry skeptical delivery, firm concise consonants, practical rather than sweet or airy.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "bender",
+      "seed": 8408,
+      "description": "Adult American male, gruff low-mid baritone, strongly nasal buzz with a dry coarse edge, brash cocky delivery, gravelly vowel onsets and a blunt sardonic cadence. Robotic character attitude with intelligible natural speech.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "rick_sanchez",
+      "seed": 8409,
+      "description": "Elderly American male with a coarse gravelly throat, nasal mid-low placement, breathy creaking phrases, uneven impatient cadence, occasional stammering starts and contemptuous emphasis, informal and slightly slurred. A rough eccentric scientist voice rather than a booming narrator.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "spongebob",
+      "seed": 8410,
+      "description": "Adult male cartoon voice, extremely bright high falsetto register, pinched forward nasal twang, slightly squeaky resonant edge, bouncy eager rhythm and sharply articulated consonants. Excited sincere friendly energy, not a child voice.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "patrick_star",
+      "seed": 8411,
+      "description": "Adult American male cartoon voice, very low warm hollow bass register, slow rounded open vowels, slightly muffled throaty resonance, long easy pauses and amiably puzzled emphasis, relaxed and uncomplicated.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "squidward_tentacles",
+      "seed": 8412,
+      "description": "Adult male cartoon voice with a low-mid register and exceptionally pinched honking nasal resonance, dry faintly congested timbre, slow flat bored delivery, disdainful elongated vowels and carefully enunciated consonants.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "mr_krabs",
+      "seed": 8413,
+      "description": "Older male character voice, very deep gravelly chest resonance with a strong rough salty maritime accent, barked consonants, rolling vowels, gruff jovial authority and a slightly hoarse laugh in the tone.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "shrek",
+      "seed": 8414,
+      "description": "Adult male with a broad working-class Scottish accent, deep earthy baritone, rough warm chest resonance and heavy rounded vowels, direct gruff delivery with dry humor, relaxed consonants, not a refined English accent.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "donkey",
+      "seed": 8415,
+      "description": "Adult male with a lively conversational Black American English accent, mid-high bright forward placement, slightly raspy nasal edge, very expressive quick comic rhythm, warm eager energy and crisp emphatic consonants.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "walter_white",
+      "seed": 8416,
+      "description": "Mature American male with a low-mid dark baritone, controlled breathy gravel at phrase endings, measured deliberate pace, precise clipped consonants, restrained intensity and firm downward cadences, quiet authority.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "saul_goodman",
+      "seed": 8417,
+      "description": "Middle-aged American male, mid-low register with a thin nasal edge and mild gravel, agile fast salesman cadence, theatrical persuasive shifts in pitch, clear Chicago-influenced American vowels and dry comic warmth.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "michael_scott",
+      "seed": 8418,
+      "description": "Middle-aged American male, medium pitch, forward slightly nasal placement, warm ordinary conversational timbre with a faint scratch at the bottom, awkwardly confident executive rhythm, earnest rising inflections and restrained comic eagerness.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    },
+    {
+      "id": "dwight_schrute",
+      "seed": 8419,
+      "description": "Adult American male with a medium-low pinched nasal baritone, dry tight slightly throaty resonance, extremely precise over-enunciated consonants, blunt literal clipped cadence, self-serious stern matter-of-fact delivery.",
+      "referenceText": "Hello, I am calling about a problem with my account. Can you explain what happened?"
+    }
+  ]
+}

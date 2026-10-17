@@ -14,13 +14,13 @@ using Microsoft.Win32;
 
 [assembly: AssemblyTitle("Scam With Your Friends - Famous Callers Setup")]
 [assembly: AssemblyProduct("Famous Callers")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: AssemblyFileVersion("1.1.0.0")]
 [assembly: System.Runtime.Versioning.TargetFramework(".NETFramework,Version=v4.7.2")]
 
 internal static class Setup
 {
-    const string Version = "1.0.0";
+    const string Version = "1.1.0";
     const string GameExe = "Scam With Your Friends.exe";
     const string DataRelative = "Scam With Your Friends_Data";
     const string CatalogRelative = "kolkata-json/caller-identities/famous-callers-pack.json";
@@ -48,7 +48,7 @@ internal static class Setup
             }
             if(check&&uninstall)throw new ArgumentException("Choose --check or --uninstall.");
             Console.WriteLine("SCAM WITH YOUR FRIENDS - FAMOUS CALLERS "+Version);
-            Console.WriteLine("20 new personalities, opening lines and original fan portraits.\n");
+            Console.WriteLine("20 personalities, floating-head portraits and distinct synthetic voices.\n");
             Console.WriteLine("[1/4] Finding the game...");
             game=ChooseGame(game);
             if(data==null)data=Path.Combine(Path.GetDirectoryName(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)),"LocalLow","Jatater Worldwide","Scam With Your Friends");
@@ -58,11 +58,6 @@ internal static class Setup
             var payload=ReadPayload();
             var callers=ValidatePayload(payload);
             var files=InstallFiles(payload);
-            if(!uninstall) foreach(var caller in callers)
-            {
-                string voice=Within(Streaming,Text(caller,"voiceId"));
-                if(!File.Exists(voice))throw new IOException("A required built-in voice sample is missing: "+Text(caller,"voiceId")+". Verify the game's files in Steam.");
-            }
             var record=ReadMap(Path.Combine(ModRoot,"install.json"));
             var recorded=record!=null&&record.ContainsKey("files")?record["files"] as Dictionary<string,object>:null;
             ValidateOwned(files,recorded,uninstall);
@@ -73,6 +68,12 @@ internal static class Setup
                 Instructions();Pause();return 0;
             }
             if(GameRunning())throw new IOException("Close the game, then run setup again. Your session has been left open.");
+            // Validate a saved lineup before writing any caller-pack files.
+            if(queue&&File.Exists(Within(data,"daily-callers.json")))
+            {
+                var preflight=ReadMap(Within(data,"daily-callers.json"));
+                if(preflight==null||!preflight.ContainsKey("callerIds")||preflight["callerIds"] is string||!(preflight["callerIds"] is IEnumerable)||Sequence(preflight["callerIds"]).Any(v=>!(v is string)))throw new IOException("The saved caller lineup is unreadable. Use --no-queue to leave it alone.");
+            }
             Console.WriteLine(uninstall?"[3/4] Removing this pack...":"[3/4] Installing the 20 callers and portraits...");
             var prior=new Dictionary<string,byte[]>(StringComparer.OrdinalIgnoreCase);
             var createdDirectories=new List<string>();
@@ -103,7 +104,7 @@ internal static class Setup
                         Console.WriteLine(uninstall?"      Removed pack entries; other lineup settings preserved.":"      Added pack entries; existing callers and lineup settings preserved.");
                     }
                 }
-                else Console.WriteLine("      The game will include the pack when it creates a new default lineup.");
+                else Console.WriteLine(uninstall?"      No saved lineup changes needed.":"      The game will include the pack when it creates a new default lineup.");
                 string recordPath=Within(ModRoot,"install.json");
                 if(uninstall)Change(recordPath,null,prior,createdDirectories);
                 else
@@ -115,13 +116,13 @@ internal static class Setup
             }
             catch
             {
-                Console.WriteLine("Restoring files changed by this attempt...");
+                Console.WriteLine("Restoring caller-pack files changed by this attempt...");
                 foreach(var previous in prior.Reverse())
                 { if(previous.Value==null){if(File.Exists(previous.Key))File.Delete(previous.Key);}else AtomicWrite(previous.Key,previous.Value); }
                 foreach(var directory in createdDirectories.AsEnumerable().Reverse())if(Directory.Exists(directory)&&!Directory.EnumerateFileSystemEntries(directory).Any())Directory.Delete(directory);
                 throw;
             }
-            Console.WriteLine(uninstall?"DONE: Famous Callers removed. Game DLLs and other callers were untouched.":"DONE: 20 callers installed. Game DLLs and other callers were untouched.");
+            Console.WriteLine(uninstall?"DONE: Famous Callers removed. Other callers were preserved.":"DONE: 20 callers, portraits and voice samples installed. Other callers were preserved.");
             if(!uninstall)Instructions();
             Pause();return 0;
         }
@@ -162,11 +163,13 @@ internal static class Setup
         foreach(var caller in callers)
         {
             string id=Text(caller,"id"),portrait=Text(caller,"webcamImage"),voice=Text(caller,"voiceId");
-            if(id==null||!Regex.IsMatch(id,@"\Afamous_callers_[a-z0-9_]+\z")||!ids.Add(id)||portrait!="FamousCallers/"+id.Substring("famous_callers_".Length)+".png"||string.IsNullOrWhiteSpace(Text(caller,"displayName"))||string.IsNullOrWhiteSpace(Text(caller,"personalityPrompt"))||voice==null||!voice.StartsWith("kolkata-voices/Connor/",StringComparison.Ordinal)||voice.Contains("..")||Path.IsPathRooted(voice))throw new InvalidDataException("Invalid caller metadata.");
+            if(id==null||!Regex.IsMatch(id,@"\Afamous_callers_[a-z0-9_]+\z")||!ids.Add(id)||portrait!="FamousCallers/"+id.Substring("famous_callers_".Length)+".png"||string.IsNullOrWhiteSpace(Text(caller,"displayName"))||string.IsNullOrWhiteSpace(Text(caller,"personalityPrompt"))||voice!="Callers/FamousCallers/Voices/"+id.Substring("famous_callers_".Length)+".wav")throw new InvalidDataException("Invalid caller metadata.");
             int trust=Convert.ToInt32(caller["initialTrustPercent"]);
             if(trust<0||trust>100||!new[]{"NEUTRAL","TRUSTING","SUSPICIOUS","ANGRY"}.Contains(Text(caller,"initialEmotion"))||Text(caller,"callType")!="victim"||Sequence(caller["firstMessages"]).Count()<3)throw new InvalidDataException("Invalid initial caller state.");
             string name="portraits/"+Path.GetFileName(portrait);expected.Add(name);
-            byte[] image;if(!payload.TryGetValue(name,out image)||image.Length<33||!new byte[]{137,80,78,71,13,10,26,10}.SequenceEqual(image.Take(8))||image[16]!=0||image[17]!=0||image[18]!=2||image[19]!=0||image[20]!=0||image[21]!=0||image[22]!=2||image[23]!=0)throw new InvalidDataException("Invalid 512-pixel PNG portrait.");
+            byte[] image;if(!payload.TryGetValue(name,out image)||image.Length<33||!new byte[]{137,80,78,71,13,10,26,10}.SequenceEqual(image.Take(8))||image[16]!=0||image[17]!=0||image[18]!=2||image[19]!=225||image[20]!=0||image[21]!=0||image[22]!=2||image[23]!=222)throw new InvalidDataException("Invalid 737 by 734 native-layout PNG portrait.");
+            string voiceEntry="voices/"+Path.GetFileName(voice);expected.Add(voiceEntry);
+            byte[] audio;if(!payload.TryGetValue(voiceEntry,out audio))throw new InvalidDataException("Missing voice sample.");ValidateVoice(audio);
         }
         if(!expected.SetEquals(payload.Keys))throw new InvalidDataException("Unexpected file in embedded pack.");
         return callers;
@@ -175,7 +178,22 @@ internal static class Setup
     {
         var files=new Dictionary<string,byte[]>(StringComparer.Ordinal){{CatalogRelative,payload["callers.json"]}};
         foreach(var entry in payload.Where(p=>p.Key.StartsWith("portraits/",StringComparison.Ordinal)))files.Add("Callers/FamousCallers/"+Path.GetFileName(entry.Key),entry.Value);
+        foreach(var entry in payload.Where(p=>p.Key.StartsWith("voices/",StringComparison.Ordinal)))files.Add("Callers/FamousCallers/Voices/"+Path.GetFileName(entry.Key),entry.Value);
         return files;
+    }
+    static void ValidateVoice(byte[] bytes)
+    {
+        if(bytes.Length<44||bytes.Length>1048576||Encoding.ASCII.GetString(bytes,0,4)!="RIFF"||Encoding.ASCII.GetString(bytes,8,4)!="WAVE")throw new InvalidDataException("Invalid voice WAV.");
+        bool format=false,audio=false;
+        for(int offset=12;offset+8<=bytes.Length;)
+        {
+            uint size=BitConverter.ToUInt32(bytes,offset+4);if(size>(uint)(bytes.Length-offset-8))throw new InvalidDataException("Truncated voice WAV.");
+            string tag=Encoding.ASCII.GetString(bytes,offset,4);int start=offset+8;
+            if(tag=="fmt ")format=size>=16&&BitConverter.ToUInt16(bytes,start)==1&&BitConverter.ToUInt16(bytes,start+2)==1&&BitConverter.ToUInt32(bytes,start+4)==24000&&BitConverter.ToUInt16(bytes,start+14)==16;
+            if(tag=="data")audio=size>=96000&&size<=720000;
+            offset=start+(int)size+((int)size%2);
+        }
+        if(!format||!audio)throw new InvalidDataException("Voice samples must be 2-15 second, mono 24 kHz PCM16 WAV files.");
     }
     static void ValidateOwned(Dictionary<string,byte[]> files,Dictionary<string,object> recorded,bool uninstall)
     {
@@ -228,6 +246,6 @@ internal static class Setup
     }
     static void Instructions()
     {
-        Console.WriteLine("\nHOW TO PLAY\n1. Reopen the game and host a lobby.\n2. These callers are part of the normal caller pool and the daily lineup.\n3. Install the same pack version on every player's PC for multiplayer.\n4. Keep using your usual AI provider, including the separate Ollama mod.\n\nPortraits and personalities are fan-made. Speech uses existing game voices;\nthese are not actor voice impressions. No game files or voice samples are bundled.\n\nRemove the pack later: setup.exe --uninstall\nA game update may remove the pack; rerun setup if needed.");
+        Console.WriteLine("\nHOW TO PLAY\n1. Reopen the game and host a lobby.\n2. These callers are part of the normal caller pool and the daily lineup.\n3. Install the same pack version on every player's PC for multiplayer.\n4. Keep using your usual AI provider, including the separate Ollama mod.\n\nPortraits and personalities are fan-made. Speech uses distinct synthetic character-style voices, not official performances.\nNo voice-design models or development tools are required by players.\nFor occasional Rick burps, install Ollama mod v1.0.4 or newer separately.\n\nRemove the pack later: setup.exe --uninstall\nA game update may remove the pack; rerun setup if needed.");
     }
 }
